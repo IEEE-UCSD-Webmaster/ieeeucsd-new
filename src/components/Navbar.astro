@@ -1,0 +1,119 @@
+---
+import navigatePages from "../data/navigatePages.json";
+---
+
+<div class="h-64 lg:h-32 flex justify-between items-center ">
+
+    <a class="flex ml-10">
+        <img src="/logos/ieee_logo_full_white.svg" class=" flex h-32 lg:h-16 w-auto bg-transparent" alt="IEEE Logo" />
+    </a>
+
+    <nav class="xl:block items-center px-6 hidden">
+        <ul>
+            {
+                navigatePages.map((page) => (
+                    <a
+                        href={page.url}
+                        class=" font-extrabold bg-transparent text-white hover:text-gray-300 px-3 py-2 rounded-md text-2xl"
+                    >
+                        {page.name}
+                    </a>
+                ))
+            }
+        </ul>
+    </nav>
+
+    <nav
+            class="bg-black xl:hidden absolute top-[0px] w-full overflow-y-hidden transition-all duration-500 -translate-y-full z-10"
+            style="height: calc(100vh - 0px);"
+            id="secondNav"
+        >
+            <ul
+                class="block text-center mt-[200px] mx-auto mb-0 my-auto w-fit"
+                id="navbar-list"
+            >
+                {
+                    navigatePages.map((page) => (
+                        <a
+                            href={page.url}
+                            class=" block font-extrabold text-6xl lg:text-3xl text-white hover:text-gray-300 pb-20 rounded-md  opacity-0"
+                        >
+                            {page.name}
+                        </a>
+                    ))
+                }
+            </ul>
+        </nav>
+
+    <div class="xl:hidden mr-12 lg:mr-6 z-20">
+        <button
+            class="hamburger hamburger--collapse flex scale-[200%] lg:scale-[100%]"
+
+            type="button"
+        >
+            <span class="hamburger-box">
+                <span class="hamburger-inner"></span>
+            </span>
+        </button>
+    </div>
+
+    </div>
+</div>
+
+
+<script is:inline>
+    var hamburger = document.querySelector(".hamburger");
+    var secondNav = document.querySelector("#secondNav");
+    var navbarListItems = document.querySelectorAll("#navbar-list a");
+    var body = document.body; // Get the body element
+
+    if (hamburger && secondNav && navbarListItems) {
+        hamburger.addEventListener("click", function () {
+            hamburger.disabled = true;
+
+            hamburger.classList.toggle("is-active");
+
+            if (secondNav.classList.contains("-translate-y-full")) {
+                secondNav.classList.remove("-translate-y-full");
+                secondNav.classList.add("translate-y-0");
+
+                // Disable scrolling on body
+                body.style.overflowY = "hidden"; // Prevent scrolling
+
+                let lastItemIndex = navbarListItems.length - 1;
+
+                navbarListItems.forEach((item, index) => {
+                    setTimeout(
+                        () => {
+                            let htmlItem = item;
+                            htmlItem.style.transition = "opacity 0.5s ease";
+                            htmlItem.style.opacity = "1";
+
+                            if (index === lastItemIndex) {
+                                setTimeout(() => {
+                                    hamburger.disabled = false;
+                                }, 500);
+                            }
+                        },
+                        500 + index * 100
+                    );
+                });
+            } else {
+                navbarListItems.forEach((item, index) => {
+                    let htmlItem = item;
+                    htmlItem.style.opacity = "0";
+                });
+
+                setTimeout(() => {
+                    secondNav.classList.remove("translate-y-0");
+                    secondNav.classList.add("-translate-y-full");
+
+                    setTimeout(() => {
+                        hamburger.disabled = false;
+                        body.style.overflowY = "auto";
+                    }, 500);
+                }, 500);
+            }
+        });
+    }
+</script>
