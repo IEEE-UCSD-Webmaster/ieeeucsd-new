@@ -2,6 +2,7 @@
 const { title, description, keywords, url, image } = Astro.props;
 import "../styles/global.scss";
 import "../styles/hamburgers.scss"
+// import "../styles/globals.scss";
 import Navbar from "../components/Navbar.astro";
 ---
 
@@ -9,10 +10,11 @@ import Navbar from "../components/Navbar.astro";
 
 <html>
     <head>
-       
-
+<!--    <link rel="stylesheet" href="/styles/atom-dark.css" /> -->
+        <link rel="stylesheet" href="/styles/global.css" />
+        <meta charset="UTF-8">
         <script is:inline src="https://apis.google.com/js/api.js"></script>
-        
+            <script is:inline src="https://cdn.jsdelivr.net/npm/flowbite@2.5.1/dist/flowbite.min.js"></script>
         <script
             is:inline
             src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"
@@ -21,11 +23,12 @@ import Navbar from "../components/Navbar.astro";
     </head>
 
     <Navbar />
-    <body class="">
+    <body class="bg-black">
         <div class="min-h-screen w-full">
             <slot />
         </div>
     
         
     </body>
+    
 </html>

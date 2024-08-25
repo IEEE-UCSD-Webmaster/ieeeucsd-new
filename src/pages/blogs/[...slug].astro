@@ -1,0 +1,137 @@
+---
+import { type CollectionEntry, getCollection } from "astro:content";
+import getPageNumbers from "../../utils/getPageNumber";
+import getSortedPosts from "../../utils/getSortedPosts";
+import { SITE } from "../../config";
+import Layout from "../../layouts/Layout.astro";
+export interface Props {
+    post: CollectionEntry<"blogs">;
+}
+
+export async function getStaticPaths() {
+    const posts = await getCollection("blogs", ({ data }) => !data.draft);
+    const postResult = posts.map((post) => ({
+        params: { slug: post.slug },
+        props: { post }
+    }));
+    const pagePaths = getPageNumbers(posts.length).map((pageNum) => ({
+        params: { slug: String(pageNum) }
+    }));
+    return [...postResult, ...pagePaths];
+}
+
+const { slug } = Astro.params;
+const { post } = Astro.props;
+const { title, description, author, pubDate, updatedDate, tags } = post.data;
+
+import { Icon } from 'astro-icon/components'
+import FormatDate from "../../components/blogs/FormatDate.astro"
+const posts = await getCollection("blogs");
+const sortedPosts = getSortedPosts(posts);
+
+const totalPages = getPageNumbers(sortedPosts.length);
+
+const currentPage =
+    slug && !isNaN(Number(slug)) && totalPages.includes(Number(slug))
+        ? Number(slug)
+        : 0;
+
+const lastPost = currentPage * SITE.postPerPage;
+const startPost = lastPost - SITE.postPerPage;
+
+const { Content, remarkPluginFrontmatter } = await post.render();
+const paginatedPosts = sortedPosts.slice(startPost, lastPost);
+---
+
+
+<Layout> <div class="flex flex-col space-y-6 items-center justify-center mx-10 lg:mx-auto text-white">
+        
+    <!-- Top Portion -->
+    
+    <div class="bg-[#141414] w-full max-w-4xl rounded-2xl px-4 py-6">
+        
+        <div class="bg-transparent font-bold text-3xl text-white">
+            {title}
+        </div>
+
+        <div class="bg-transparent text-md text-[#9f9f9f]">
+            {description}
+        </div>
+
+        <div class="bg-transparent text-md text-[#cdcdcd] font-semibold">
+            {author && author.length > 0 && (
+                <div class="bg-transparent text-md text-[#cdcdcd]">
+                  Author{author.length > 1 ? 's' : ''}: 
+                  {author.length === 1 ? (
+                    <span>{author[0]}</span>
+                  ) : (
+                    author.map((author, index) => (
+                      <span>
+                        {author}
+                        {index < author.length - 1 ? ', ' : ''}
+                      </span>
+                    ))
+                  )}
+                </div>
+            )}
+        
+
+        </div>
+
+        <div class="bg-transparent text-md font-normal flex flex-wrap">
+            <div class="bg-transparent inline-flex">
+                <Icon
+                    name="uil:calender"
+                    
+                    class="bg-transparent mr-1.5 mt-1.5 inline-flex max-w-fit"
+                ></Icon>
+                <div class="bg-transparent flex-wrap mt-1 text-sm">
+                    <FormatDate date={pubDate} />
+                </div>
+            </div>
+
+            <div class="bg-transparent flex-wrap mx-2 mt-[0.10rem]">•</div>
+
+            <div class="bg-transparent inline-flex">
+                <Icon
+                    name="ant-design:read-outlined"
+                    class="bg-transparent mr-1.5 mt-1.5 inline-flex max-w-fit"
+                ></Icon>
+                <div class="bg-transparent flex-wrap text-sm mt-1">
+                    {remarkPluginFrontmatter.readingTime}
+                </div>
+            </div>
+
+            <div class="bg-transparent flex-wrap mx-2 mt-[0.10rem]">•</div>
+
+            <div class="bg-transparent inline-flex">
+                <Icon
+                    name="mdi:tag-outline"
+                    class="mt-1.5 inline-flex max-w-fit bg-transparent"
+                ></Icon>
+                {
+                    tags.map((tag) => (
+                        <a
+                            class="flex items-center bg-[#4d4c4c] rounded  gap-x-1.5 h-6 mt-0.5 text-sm p-1 select-none scale-[0.85] "
+                            // href={`/tags/${tag}`}
+                        >
+                            {tag}
+                        </a>
+                    ))
+                }
+            </div>
+        </div>
+
+    </div>
+    
+    <!-- Bottom Portion -->
+
+    <div class="bg-[#141414] w-full max-w-4xl rounded-2xl px-4 py-4">
+        <div class="bg-transparent prose prose-invert prose-code:whitespace-pre-wrap prose-code:break-words prose-code:overflow-x-auto text-base max-w-none">
+            <Content />
+        </div>
+    </div>
+ 
+</div>
+</Layout>
+
